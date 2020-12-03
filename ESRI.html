@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Dot density map </title>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/themes/dark/main.css"/>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 20;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script src="https://js.arcgis.com/4.11/"></script>
+
+    <script>
+      require([
+        "esri/WebMap",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/renderers/DotDensityRenderer",
+        "esri/widgets/Legend",
+        "esri/widgets/Bookmarks",
+        "esri/widgets/Expand",
+        "esri/widgets/Search"
+      ], function(
+        WebMap,
+        MapView,
+        FeatureLayer,
+        DotDensityRenderer,
+        Legend,
+        Bookmarks,
+        Expand,
+        Search
+      ) {
+        const map = new WebMap({
+          portalItem: {
+            id: "057aa44095f6409ebc0a5625b4793041"
+          }
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          highlightOptions: {
+            fillOpacity: 0,
+            color: [255, 255, 255]
+          },
+          popup: {
+            dockEnabled: true,
+            dockOptions: {
+              position: "top-right",
+              breakpoint: false
+            }
+          },
+          constraints: {
+            maxScale: 35000
+          }
+        });
+
+        view.when().then(function() {
+          const dotDensityRenderer = new DotDensityRenderer({
+            referenceDotValue: 125,
+            outline: null,
+            referenceScale: 577790, //577790, // 1:577,790 view scale
+            legendOptions: {
+              unit: "people"
+            },
+            attributes: [{
+              field: "B05011_004E",
+              color: "#f23c3f",
+              label: "Foreign Born population naturalized 2015 or after"
+            }, {
+              field: "B05011_005E",
+              color: "#e8ca0d",
+              label: "Foreign Born population who naturalized 2010-2014"
+            }, {
+              field: "B05011_006E",
+              color: "#00b6f1",
+              label: "Foreign Born population who naturalized 2005-2009"
+            }, {
+              field: "B05011_007E",
+              color: "#32ef94",
+              label: "Foreign born population who naturalized 2000-2004"
+            }, {
+              field: "B05011_008E",
+              color: "#ff7fe9",
+              label: "Foreign born population who naturalized 1995-1999"
+            }, {
+              field: "B05011_009E",
+              color: "#e2c4a5",
+              label: "Foreign born population who naturalized 1990-1994"
+            }, {
+              field: "B05011_010E",
+              color: "#ff6a00",
+              label: "Foreign born population who naturalized 1990 and before"
+            }]
+          });
+
+          // Add renderer to the layer and define a popup template
+          const url = "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Nativity_Citizenship_Boundaries/FeatureServer/0";
+          const layer = new FeatureLayer({
+            url: url,
+            minScale: 20000000, //0
+            maxScale: 35000,
+            title: "Naturalized Citizenship",
+            popupTemplate: {
+              title: "{County}, {State}",
+              content: [
+                {
+                  type: "fields",
+                  fieldInfos: [
+                    {
+                      fieldName: "B05011_004E",
+                      label: "Foreign Born population naturalized 2015 or after",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "B05011_005E",
+                      label: "Foreign Born population who naturalized 2010-2014",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "B05011_006E",
+                      label: "Foreign Born population who naturalized 2005-2009",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "B05011_007E",
+                      label: "Foreign born population who naturalized 2000-2004",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "B05011_008E",
+                      label: "Foreign born population who naturalized 1995-1999",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "B05011_009E",
+                      label: "Foreign born population who naturalized 1990-1994",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "B05011_010E",
+                      label: "Foreign born population who naturalized 1990 and before",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            renderer: dotDensityRenderer
+          });
+
+          map.add(layer);
+
+          view.ui.add([
+            new Expand({
+              view: view,
+              content: new Legend({ view: view }),
+              group: "top-left",
+              expanded: true
+            }),
+            new Expand({
+              view: view,
+              content: new Bookmarks({ view: view }),
+              group: "top-left"
+            }),
+            new Expand({
+              view: view,
+              content: new Search({ view: view }),
+              group: "top-left"
+            })], "top-left" );
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
